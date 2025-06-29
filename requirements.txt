@@ -1,0 +1,7 @@
+openai
+notion-client
+pytrends
+requests
+beautifulsoup4
+pandas
+python-dotenv
