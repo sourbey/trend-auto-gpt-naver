@@ -1,0 +1,14 @@
+services:
+  - type: cron
+    name: trend-auto-runner
+    runtime: python
+    schedule: "0 8 * * *"
+    buildCommand: ""
+    startCommand: "python main.py"
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: NOTION_TOKEN
+        sync: false
+      - key: NOTION_DATABASE_ID
+        sync: false
