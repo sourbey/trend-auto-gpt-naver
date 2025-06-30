@@ -2,19 +2,62 @@ import os
 import sys
 import subprocess
 
-# dotenv 패키지 설치 및 import 안전장치
-try:
-    from dotenv import load_dotenv
-except ImportError:
-    print("Installing python-dotenv...")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "python-dotenv"])
-    from dotenv import load_dotenv
+# 필요한 패키지들을 자동 설치하는 함수
+def install_package(package_name):
+    try:
+        __import__(package_name)
+    except ImportError:
+        print(f"Installing {package_name}...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package_name])
 
-from pytrends.request import TrendReq
-from bs4 import BeautifulSoup
-import requests
-import openai
-from notion_client import Client
+# 모든 필요한 패키지 설치 확인
+packages = [
+    "python-dotenv",
+    "pytrends", 
+    "beautifulsoup4",
+    "requests",
+    "openai",
+    "notion-client"
+]
+
+for package in packages:
+    if package == "python-dotenv":
+        try:
+            from dotenv import load_dotenv
+        except ImportError:
+            install_package(package)
+            from dotenv import load_dotenv
+    elif package == "pytrends":
+        try:
+            from pytrends.request import TrendReq
+        except ImportError:
+            install_package(package)
+            from pytrends.request import TrendReq
+    elif package == "beautifulsoup4":
+        try:
+            from bs4 import BeautifulSoup
+        except ImportError:
+            install_package(package)
+            from bs4 import BeautifulSoup
+    elif package == "requests":
+        try:
+            import requests
+        except ImportError:
+            install_package(package)
+            import requests
+    elif package == "openai":
+        try:
+            import openai
+        except ImportError:
+            install_package(package)
+            import openai
+    elif package == "notion-client":
+        try:
+            from notion_client import Client
+        except ImportError:
+            install_package(package)
+            from notion_client import Client
+
 import datetime
 
 # 환경변수 불러오기
