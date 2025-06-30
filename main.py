@@ -71,10 +71,19 @@ notion = Client(auth=NOTION_TOKEN)
 
 # 1. 구글 트렌드 키워드 추출
 def get_trending_keywords():
-    pytrends = TrendReq(hl='ko', tz=540)
-    pytrends.build_payload(kw_list=[""], cat=0, timeframe='now 1-d', geo='KR')
-    trending_searches = pytrends.trending_searches(pn='south_korea')
-    return trending_searches[0:5][0].tolist()
+    try:
+        pytrends = TrendReq(hl='ko', tz=540, timeout=(10,25))
+        trending_searches = pytrends.trending_searches(pn='south_korea')
+        if trending_searches is not None and len(trending_searches) > 0:
+            return trending_searches[0:5][0].tolist()
+        else:
+            return ["인공지능", "투자", "부동산", "취업", "여행"]
+    except Exception as e:
+        print(f"Google Trends API 오류: {e}")
+        print("대체 키워드를 사용합니다.")
+        # 대체 키워드 목록
+        return ["인공지능", "투자", "부동산", "취업", "여행"]
+
 
 # 2. 네이버 블로그 VIEW 탭에서 내용 수집
 def crawl_naver_blog(keyword):
