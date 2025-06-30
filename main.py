@@ -107,16 +107,16 @@ def analyze_with_gpt(keyword, blog_summary):
 결과는 '니즈: ..., 요약: ...' 형식으로 줘.
 """
     
-    # 새로운 OpenAI v1.0+ API 사용법
     client = openai.OpenAI(api_key=OPENAI_API_KEY)
     response = client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-3.5-turbo",  # gpt-4 → gpt-3.5-turbo로 변경
         messages=[
             {"role": "system", "content": "트렌드 분석 전문가입니다."},
             {"role": "user", "content": prompt}
         ]
     )
     return response.choices[0].message.content.strip()
+
 
 
 # 4. 노션 DB에 업로드
