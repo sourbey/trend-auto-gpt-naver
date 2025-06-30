@@ -1,5 +1,15 @@
 import os
-from dotenv import load_dotenv
+import sys
+import subprocess
+
+# dotenv 패키지 설치 및 import 안전장치
+try:
+    from dotenv import load_dotenv
+except ImportError:
+    print("Installing python-dotenv...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "python-dotenv"])
+    from dotenv import load_dotenv
+
 from pytrends.request import TrendReq
 from bs4 import BeautifulSoup
 import requests
