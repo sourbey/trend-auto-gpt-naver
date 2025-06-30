@@ -106,7 +106,10 @@ def analyze_with_gpt(keyword, blog_summary):
 2. 마케팅 인사이트 1~2줄로 요약해줘.
 결과는 '니즈: ..., 요약: ...' 형식으로 줘.
 """
-    response = openai.ChatCompletion.create(
+    
+    # 새로운 OpenAI v1.0+ API 사용법
+    client = openai.OpenAI(api_key=OPENAI_API_KEY)
+    response = client.chat.completions.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": "트렌드 분석 전문가입니다."},
@@ -114,6 +117,7 @@ def analyze_with_gpt(keyword, blog_summary):
         ]
     )
     return response.choices[0].message.content.strip()
+
 
 # 4. 노션 DB에 업로드
 def upload_to_notion(keyword, result):
