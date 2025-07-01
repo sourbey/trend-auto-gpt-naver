@@ -1,6 +1,6 @@
 openai
 notion-client
-pytrends
+pytrends>=4.9.2
 requests
 beautifulsoup4
 pandas
