@@ -70,19 +70,42 @@ openai.api_key = OPENAI_API_KEY
 notion = Client(auth=NOTION_TOKEN)
 
 # 1. 구글 트렌드 키워드 추출
+import requests
+from bs4 import BeautifulSoup
+
+# 1. 구글 트렌드 키워드 추출 (웹 스크레이핑 버전)
 def get_trending_keywords():
     try:
-        pytrends = TrendReq(hl='ko-KR', tz=540)
-        # realtime_trending_searches 함수 사용
-        df = pytrends.realtime_trending_searches(pn='KR') # KR = South Korea
+        # 구글 트렌드 '일별' 인기 급상승 검색어 페이지 URL
+        url = "https://trends.google.com/trends/trendingsearches/daily?geo=KR"
         
-        # 상위 5개 키워드를 리스트로 반환
-        # .head(5)를 통해 상위 5개만 선택하고, .tolist()로 리스트로 변환
-        return df['title'].head(5).tolist()
+        # 'User-Agent' 헤더를 추가하여 브라우저인 것처럼 요청
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
+        }
+        
+        response = requests.get(url, headers=headers)
+        response.raise_for_status() # 오류 발생 시 예외를 일으킴
+
+        soup = BeautifulSoup(response.text, "html.parser")
+        
+        # Google Trends 페이지의 구조를 분석하여 키워드가 담긴 CSS 선택자를 찾음
+        # 현재 구조는 list-item-title 클래스 내에 키워드가 있음
+        keyword_elements = soup.select("div.list-item-title")
+        
+        if not keyword_elements:
+            print("키워드를 찾을 수 없습니다. Google Trends 페이지 구조가 변경되었을 수 있습니다.")
+            raise ValueError("No keywords found")
+
+        # 상위 5개 키워드를 텍스트만 추출하여 리스트로 만듦
+        keywords = [elem.get_text(strip=True) for elem in keyword_elements[:5]]
+        
+        print(f"성공적으로 트렌드 키워드를 가져왔습니다: {keywords}")
+        return keywords
 
     except Exception as e:
         # 에러 발생 시 기존처럼 대체 키워드 사용
-        print(f"Google Trends 실시간 트렌드 추출 오류: {e}")
+        print(f"Google Trends 스크레이핑 오류: {e}")
         print("대체 키워드를 사용합니다.")
         return ["인공지능", "투자", "부동산", "취업", "여행"]
 
