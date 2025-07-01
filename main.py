@@ -71,34 +71,14 @@ notion = Client(auth=NOTION_TOKEN)
 
 # 1. 구글 트렌드 키워드 추출
 def get_trending_keywords():
-    try:
-        # 더 상세한 헤더 설정
-        pytrends = TrendReq(
-            hl='ko', 
-            tz=540,
-            timeout=(10, 25),
-            proxies=None,
-            retries=2,
-            backoff_factor=0.1
-        )
-        
-        # 빈 키워드로 초기화 (중요!)
-        pytrends.build_payload(kw_list=[], cat=0, timeframe='now 1-d', geo='KR')
-        
-        # 다른 지역 코드 시도
-        for region in ['south_korea', 'KR', 'korea']:
-            try:
-                trending_searches = pytrends.trending_searches(pn=region)
-                if trending_searches is not None and len(trending_searches) > 0:
-                    return trending_searches[0:5][0].tolist()
-            except:
-                continue
-                
-        return ["인공지능", "투자", "부동산", "취업", "여행"]
-        
-    except Exception as e:
-        print(f"Google Trends 오류: {e}")
-        return ["인공지능", "투자", "부동산", "취업", "여행"]
+    try:
+        pytrends = TrendReq(hl='ko', tz=540)
+        trending_searches = pytrends.trending_searches(pn='south_korea')
+        return trending_searches[0].tolist()[:5]  # 수정 핵심!
+    except Exception as e:
+        print(f"Google Trends 오류: {e}")
+        return ["인공지능", "투자", "부동산", "취업", "여행"]
+
 
 
 
