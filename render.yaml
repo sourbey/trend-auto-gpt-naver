@@ -2,10 +2,14 @@ services:
   - type: cron
     name: trend-auto-runner
     runtime: python
-    schedule: "0 8 * * *"
-    buildCommand: ""
+    schedule: "0 1 * * *"
+    buildCommand: "pip install -r requirements.txt"
     startCommand: "python main.py"
     envVars:
+      - key: NAVER_CLIENT_ID
+        sync: false
+      - key: NAVER_CLIENT_SECRET
+        sync: false
       - key: OPENAI_API_KEY
         sync: false
       - key: NOTION_TOKEN
