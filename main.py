@@ -79,9 +79,6 @@ def get_trending_keywords():
         print(f"Google Trends 오류: {e}")
         return ["인공지능", "투자", "부동산", "취업", "여행"]
 
-
-
-
 # 2. 네이버 블로그 VIEW 탭에서 내용 수집
 def crawl_naver_blog(keyword):
     headers = {"User-Agent": "Mozilla/5.0"}
