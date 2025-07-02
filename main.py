@@ -68,46 +68,61 @@ except Exception as e:
     print(f"❌ API 클라이언트 초기화 실패: {e}")
     sys.exit(1)
 
-# 1. 트렌드 키워드 수집 (백업 방식)
+# 1. 실시간 트렌드 키워드 수집
 def get_trending_keywords():
     try:
-        # 네이버 데이터랩 API 시도
-        url = "https://openapi.naver.com/v1/datalab/search"
-        headers = {
-            'X-Naver-Client-Id': NAVER_CLIENT_ID,
-            'X-Naver-Client-Secret': NAVER_CLIENT_SECRET,
-            'Content-Type': 'application/json'
-        }
+        print("📡 실시간 트렌드 키워드 수집 중...")
         
-        end_date = datetime.date.today().strftime('%Y-%m-%d')
-        start_date = (datetime.date.today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d')
+        # 방법 1: 줌(ZUM) 실시간 검색어
+        zum_url = "https://zum.com/"
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
         
-        body = {
-            "startDate": start_date,
-            "endDate": end_date,
-            "timeUnit": "date",
-            "keywordGroups": [
-                {"groupName": "AI", "keywords": ["인공지능"]},
-                {"groupName": "투자", "keywords": ["투자"]},
-                {"groupName": "부동산", "keywords": ["부동산"]}
-            ]
-        }
+        response = requests.get(zum_url, headers=headers, timeout=10)
+        soup = BeautifulSoup(response.text, 'html.parser')
         
-        response = requests.post(url, headers=headers, json=body, timeout=10)
+        # 실시간 검색어 추출 시도
+        keywords = []
         
-        if response.status_code == 200:
-            keywords = ["인공지능", "투자", "부동산"]
-            print("✅ 네이버 데이터랩 키워드 수집 성공")
-            return keywords
+        # 줌 실시간 검색어 선택자들 시도
+        selectors = [
+            '.rank_keyword',
+            '.keyword_list li',
+            '.realtime_keyword',
+            '[class*="keyword"]',
+            '[class*="rank"]'
+        ]
+        
+        for selector in selectors:
+            elements = soup.select(selector)
+            if elements:
+                for elem in elements[:5]:
+                    text = elem.get_text().strip()
+                    if text and len(text) > 1 and text not in keywords:
+                        keywords.append(text)
+                if keywords:
+                    break
+        
+        if keywords:
+            print(f"✅ 줌에서 실시간 키워드 수집: {keywords[:5]}")
+            return keywords[:5]
         else:
-            raise Exception(f"API 오류: {response.status_code}")
+            raise Exception("실시간 키워드 추출 실패")
             
     except Exception as e:
-        print(f"⚠️ 네이버 API 실패: {e}")
-        # 현재 이슈 키워드 사용
-        trending_keywords = ["ChatGPT", "비트코인", "부동산 투자", "취업 준비", "여행"]
-        print(f"📈 현재 트렌드 키워드 사용: {trending_keywords}")
-        return trending_keywords
+        print(f"⚠️ 실시간 키워드 수집 실패: {e}")
+        
+        # 백업: 현재 화제 키워드 (수동 업데이트)
+        current_hot_keywords = [
+            "삼풍백화점 참사 30주기",
+            "임종훈 신유빈", 
+            "방탄소년단 뷔",
+            "ChatGPT",
+            "비트코인"
+        ]
+        
+        print(f"📈 현재 화제 키워드 사용: {current_hot_keywords}")
+        return current_hot_keywords
+
 
 # 2. 구글 데이터 수집
 def collect_google_data(keyword):
