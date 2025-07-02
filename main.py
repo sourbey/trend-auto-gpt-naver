@@ -23,7 +23,7 @@ import openai
 from notion_client import Client
 
 # 환경변수 불러오기
-load_dotenv()
+#load_dotenv()
 
 # API 키 설정
 NAVER_CLIENT_ID = os.getenv("NAVER_CLIENT_ID")
