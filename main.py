@@ -1,3 +1,16 @@
+# 환경변수 디버깅
+print("🔍 환경변수 디버깅:")
+print(f"NAVER_CLIENT_ID 존재 여부: {os.getenv('NAVER_CLIENT_ID') is not None}")
+print(f"NAVER_CLIENT_SECRET 존재 여부: {os.getenv('NAVER_CLIENT_SECRET') is not None}")
+print(f"OPENAI_API_KEY 존재 여부: {os.getenv('OPENAI_API_KEY') is not None}")
+print(f"NOTION_TOKEN 존재 여부: {os.getenv('NOTION_TOKEN') is not None}")
+print(f"NOTION_DATABASE_ID 존재 여부: {os.getenv('NOTION_DATABASE_ID') is not None}")
+
+# 모든 환경변수 출력 (값은 숨김)
+all_env = dict(os.environ)
+naver_vars = {k: v for k, v in all_env.items() if 'NAVER' in k}
+print(f"네이버 관련 환경변수: {list(naver_vars.keys())}")
+
 import subprocess
 import sys
 
