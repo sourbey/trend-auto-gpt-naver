@@ -89,22 +89,64 @@ def get_trending_keywords():
             '.keyword_list li',
             '.realtime_keyword',
             '[class*="keyword"]',
-            '[class*="rank"]'
+            '[class*="rank"]',
+            'li',
+            'span'
         ]
         
         for selector in selectors:
             elements = soup.select(selector)
             if elements:
-                for elem in elements[:5]:
+                for elem in elements:
                     text = elem.get_text().strip()
-                    if text and len(text) > 1 and text not in keywords:
-                        keywords.append(text)
-                if keywords:
+                    
+                    # 텍스트 정리 및 필터링
+                    if text and len(text) > 1:
+                        # 숫자로 시작하는 경우 처리
+                        if text[0].isdigit():
+                            # "1신지 문원 돌싱" → "신지 문원 돌싱" 
+                            cleaned_text = text[1:].strip()
+                        else:
+                            cleaned_text = text
+                        
+                        # 유효한 키워드 조건
+                        if (cleaned_text and 
+                            len(cleaned_text) > 2 and 
+                            len(cleaned_text) < 50 and
+                            cleaned_text not in keywords and
+                            not cleaned_text.isdigit() and
+                            '더보기' not in cleaned_text and
+                            '실시간' not in cleaned_text and
+                            'ZUM' not in cleaned_text.upper()):
+                            
+                            keywords.append(cleaned_text)
+                            
+                        if len(keywords) >= 5:
+                            break
+                
+                if len(keywords) >= 5:
                     break
         
-        if keywords:
-            print(f"✅ 줌에서 실시간 키워드 수집: {keywords[:5]}")
-            return keywords[:5]
+        # 키워드 중복 제거 및 정리
+        unique_keywords = []
+        for keyword in keywords:
+            # 기존 키워드와 너무 유사한지 확인
+            is_similar = False
+            for existing in unique_keywords:
+                # 60% 이상 유사하면 중복으로 판단
+                if len(set(keyword.split()) & set(existing.split())) / max(len(keyword.split()), len(existing.split())) > 0.6:
+                    is_similar = True
+                    break
+            
+            if not is_similar:
+                unique_keywords.append(keyword)
+            
+            if len(unique_keywords) >= 5:
+                break
+        
+        if unique_keywords:
+            print(f"✅ 줌에서 실시간 키워드 수집: {unique_keywords}")
+            return unique_keywords[:5]
         else:
             raise Exception("실시간 키워드 추출 실패")
             
@@ -113,15 +155,16 @@ def get_trending_keywords():
         
         # 백업: 현재 화제 키워드 (수동 업데이트)
         current_hot_keywords = [
-            "삼풍백화점 참사 30주기",
-            "임종훈 신유빈", 
-            "방탄소년단 뷔",
-            "ChatGPT",
-            "비트코인"
+            "신지 문원",
+            "유퀴즈 이효리", 
+            "상법 개정안",
+            "초등학생 드라마 논란",
+            "채상병 특검"
         ]
         
         print(f"📈 현재 화제 키워드 사용: {current_hot_keywords}")
         return current_hot_keywords
+
 
 
 # 2. 구글 데이터 수집
